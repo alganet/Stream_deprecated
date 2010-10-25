@@ -10,11 +10,19 @@ class Client
     protected $sockets = array();
     protected $connections = array();
 
-    public function addConnection(Streamable $connection)
+    public function addConnection(Connection $connection)
     {
+        if (!$connection->isConnected())
+            $connection->connect();
         $this->connections[] = $connection;
         $this->sockets[] = $connection->getResource();
-        return array_search($connection, $this->connections);
+        $id = array_search($connection, $this->connections);
+        $client = $this;
+        $connection->onEnd(function() use ($id, &$client) {
+                $client->removeConnectionById($id);
+            }
+        );
+        return $id;
     }
 
     public function removeConnectionById($id)
@@ -36,10 +44,14 @@ class Client
                 return false;
             if ($changed_streams > 0) {
                 foreach ($read as $r) {
-                    $this->connections[array_search($r, $this->sockets)]->performRead();
+                    $id = array_search($r, $this->sockets);
+                    if (isset($this->connections[$id]))
+                        $this->connections[$id]->performRead();
                 }
                 foreach ($write as $w) {
-                    $this->connections[array_search($w, $this->sockets)]->performWrite();
+                    $id = array_search($w, $this->sockets);
+                    if (isset($this->connections[$id]))
+                        $this->connections[$id]->performWrite();
                 }
             }
         }

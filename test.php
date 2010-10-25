@@ -8,7 +8,7 @@ $respectLoader->register();
 
 $client = new Respect\Stream\Client;
 
-$connection = new Respect\Stream\Wrappers\Http('twitter.com:80');
+$connection = new Respect\Stream\Wrappers\Http('2.kingolabs.com:80');
 $connection->onData(function($data) {
         //echo $data;
     }
@@ -22,9 +22,14 @@ $connection->onHeader(function($name, $value) {
     }
 );
 $connection->onBody(function($content) {
-        echo $content;
+        //echo $content;
+        echo 'body';
     }
 );
+$connection->get('/');
+$connection->get('/');
+$connection->get('/');
+$connection->get('/');
 $connection->get('/');
 $client->addConnection($connection);
 
