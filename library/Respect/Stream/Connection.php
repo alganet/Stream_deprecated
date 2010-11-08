@@ -77,6 +77,13 @@ class Connection
                     call_user_func_array($ev, $params);
     }
 
+    public function bind($eventsArray)
+    {
+        foreach ($eventsArray as $name => $callback) {
+            $this->registerEvent($name, $callback);
+        }
+    }
+
     public function getResource()
     {
         return $this->resource;
